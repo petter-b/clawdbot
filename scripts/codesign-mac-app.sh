@@ -120,13 +120,21 @@ if [[ "$IDENTITY" != "-" ]]; then
 fi
 timestamp_args=("$timestamp_arg")
 
-cat > "$ENT_TMP_BASE" <<'PLIST'
+LIB_VAL_ENTITLEMENT=""
+if [[ "${DISABLE_LIBRARY_VALIDATION:-}" == "1" ]]; then
+  LIB_VAL_ENTITLEMENT="<key>com.apple.security.cs.disable-library-validation</key>
+    <true/>"
+  echo "WARN: Disabling Library Validation (INSECURE). Only use for local development." >&2
+fi
+
+cat > "$ENT_TMP_BASE" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>com.apple.security.automation.apple-events</key>
     <true/>
+    ${LIB_VAL_ENTITLEMENT}
     <key>com.apple.security.device.audio-input</key>
     <true/>
     <key>com.apple.security.device.camera</key>
@@ -135,13 +143,14 @@ cat > "$ENT_TMP_BASE" <<'PLIST'
 </plist>
 PLIST
 
-cat > "$ENT_TMP_APP_BASE" <<'PLIST'
+cat > "$ENT_TMP_APP_BASE" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>com.apple.security.automation.apple-events</key>
     <true/>
+    ${LIB_VAL_ENTITLEMENT}
     <key>com.apple.security.device.audio-input</key>
     <true/>
     <key>com.apple.security.device.camera</key>
@@ -152,7 +161,7 @@ cat > "$ENT_TMP_APP_BASE" <<'PLIST'
 </plist>
 PLIST
 
-cat > "$ENT_TMP_RUNTIME" <<'PLIST'
+cat > "$ENT_TMP_RUNTIME" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -161,11 +170,12 @@ cat > "$ENT_TMP_RUNTIME" <<'PLIST'
     <true/>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
     <true/>
+    ${LIB_VAL_ENTITLEMENT}
 </dict>
 </plist>
 PLIST
 
-cat > "$ENT_TMP_APP" <<'PLIST'
+cat > "$ENT_TMP_APP" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -174,6 +184,7 @@ cat > "$ENT_TMP_APP" <<'PLIST'
     <true/>
     <key>com.apple.security.automation.apple-events</key>
     <true/>
+    ${LIB_VAL_ENTITLEMENT}
     <key>com.apple.security.device.audio-input</key>
     <true/>
     <key>com.apple.security.device.camera</key>
